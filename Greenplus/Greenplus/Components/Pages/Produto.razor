@@ -1,0 +1,161 @@
+﻿@page "/produto"
+
+<html>
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    </head>
+        @if (!isLogin)
+        {
+            <div class="sidebar">
+                <Greenplus.Components.Layout.NavMenu />
+            </div>
+        }
+    <body>
+        <div class="form-group categoria">
+            <label>Categoria</label>
+            <div class="radio-options">
+                <label>
+                    <input type="radio" @onchange="selectVenda" value="venda" checked="@((venda))" />
+                    Venda
+                </label>
+                <label>
+                    <input type="radio" @onchange="selectUso" value="uso" checked="@((uso))" />
+                    Uso interno
+                </label>
+            </div>
+        </div>
+        @if (venda)
+        {
+            <div class="form-group">
+                <label for="nomePopular">Nome popular</label>
+                <input id="nomePopular" type="text" />
+            </div>
+
+            <div class="form-group">
+                <label for="nomeCientifico">Nome científico</label>
+                <input id="nomeCientifico" type="text" />
+            </div>
+
+            <div class="form-group">
+                <label for="classificacao">Classificação</label>
+                <select id="classificacao">
+                    <option value="">Selecione...</option>
+                    <option value="4">3</option>
+                    <option value="3">2</option>
+                    <option value="1">1</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="tempoDePlantio">Tempo de plantio</label>
+                    <input id="tempoDePlantio" type="text" />
+                </div>
+
+                <div class="form-group">
+                    <label for="temperatura">Temperatura</label>
+                    <select id="temperatura">
+                        <option value="">Selecione...</option>
+                        <option value="4">3</option>
+                        <option value="3">2</option>
+                        <option value="1">2</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="irrigacao">Irrigação</label>
+                <select id="irrigacao" style="width: 50%;">
+                    <option value="">Selecione...</option>
+                    <option value="4">3</option>
+                    <option value="3">2</option>
+                    <option value="1">2</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="valorVenda">Valor de venda (R$)</label>
+                <input id="valorVenda" type="text" style="width: 50%;" />
+            </div>
+
+            <footer>
+                <button class="bi bi-search btn search-btn" @onclick="getUserByName"></button>
+                <button class="bi bi-trash-fill btn cancel-btn"></button>
+                <button class="bi bi-check2 btn confirm-btn"></button>
+            </footer>
+        } else if (uso)
+        {
+        <div class="cadastro-simples">
+            <div class="form-group">
+                <label for="nome">Nome</label>
+                <input id="nome" type="text" />
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">Descrição</label>
+                <textarea id="descricao"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="estadoConservacao">Estado de conservação</label>
+                <select id="estadoConservacao">
+                    <option value="">Selecione</option>
+                    <option value="bom">Bom</option>
+                    <option value="regular">Regular</option>
+                    <option value="ruim">Ruim</option>
+                </select>
+            </div>
+        </div>
+            <footer>
+                <button class="bi bi-search btn search-btn" @onclick="getUserByName"></button>
+                <button class="bi bi-trash-fill btn cancel-btn"></button>
+                <button class="bi bi-check2 btn confirm-btn"></button>
+            </footer>
+        }
+    </body>
+</html>
+
+@code {
+    // private readonly string connectionString = "Server=;Database=;User Id=;Password=;TrustServerCertificate=True;";
+
+    private bool isLogin;
+
+    private bool venda = true;
+    private bool uso = false;
+
+    public HttpClient httpClient = new HttpClient();
+    public Teste usuario;
+
+    protected override void OnInitialized()
+    {
+        isLogin = false;
+    }
+
+    public async Task getUserByName()
+    {
+        var query = await httpClient.GetFromJsonAsync<Teste[]>("https://rest-node-mztn.onrender.com/{\"tabela\":\"Teste\", \"where\":{\"nome\":\"Henri\"}}");
+
+        usuario = query[0];
+    }
+
+    public class Teste
+    {
+        public int ID { get; set; }
+        public string Nome { get; set; }
+        public string Sobrenome { get; set; }
+    }
+
+    private void selectVenda()
+    {
+        uso = false;
+        venda = !venda;
+
+    }
+    
+    private void selectUso()
+    {
+        venda = false;
+        uso = !uso;
+    }
+
+}

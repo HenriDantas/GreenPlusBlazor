@@ -1,0 +1,92 @@
+﻿@page "/"
+@inherits LayoutComponentBase
+
+@using Greenplus.Components.Pages
+
+@inject NavigationManager Navigation
+
+<html>
+    @if (!isLogin)
+    {
+        <div class="sidebar">
+            <Greenplus.Components.Layout.NavMenu />
+        </div>
+    }
+    <body>
+        
+        <div class="alert alert-danger" role="alert" style="display:@(showAlert ? "block" : "none")">
+            @alertMessage
+        </div>
+
+        <div class="cardLogin">
+            <h1>Login</h1>
+
+            <label class="loginLbl">Usuário</label>
+            <input class="loginInput" type="text" @bind="usuario" />
+
+            <label class="loginLbl" style="padding-right: 46vw ">Senha</label>
+            <input class="loginInput" type="password" @bind="senha"
+               />
+            @* @onkeypress="@(e => { if (e.Key == "Enter") OnButtonClick(); })" *@
+
+
+            <button class="loginBtn" @onclick="OnButtonClick">Entrar</button>
+        </div>
+    </body>
+</html>
+
+
+@code {
+
+    public HttpClient httpClient = new HttpClient();
+
+    private string usuario;
+    private string senha;
+    private bool showAlert = false;
+    private string alertMessage = string.Empty;
+    private bool isLogin;
+
+    public class Teste
+    {
+        public int ID { get; set; }
+        public string Nome { get; set; }
+        public string Sobrenome { get; set; }
+    }
+
+    protected override void OnInitialized()
+    {
+        // Código que será executado logo quando a tela inicia
+        isLogin = true;
+    }
+
+    private async void OnButtonClick()
+    {
+        if (string.IsNullOrWhiteSpace(usuario) || string.IsNullOrWhiteSpace(senha))
+        {
+            alertMessage = "Usuário e senha não podem estar vazios!";
+            showAlert = true;
+        } else
+        {
+            var query = await httpClient.GetFromJsonAsync<Teste[]>(" https://rest-node-mztn.onrender.com/{\"tabela\":\"Teste\"}");
+
+            if(query == null)//buscar pelo username e senha dentro da tabela user(?) (precisa ser IGUAL), se sim loga se não da erro
+            {
+                alertMessage = "Usuário ou Senha inválidos!";
+                showAlert = true;
+            } else
+            {                
+                showAlert = false;
+                Navigation.NavigateTo("/home");                
+            }
+
+        }
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            OnButtonClick();
+        }
+    }
+}
